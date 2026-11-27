@@ -92,6 +92,46 @@ export type PlanProvider = {
   generatePlan(project: ProjectInput, correction?: string): Promise<unknown>;
 };
 
+type GeminiProviderError = Error & { status?: number };
+
+export function geminiModelCandidates(
+  primary = process.env.GEMINI_MODEL || "gemini-3.8-flash",
+  fallback = process.env.GEMINI_FALLBACK_MODEL || "gemini-3.5-flash-lite",
+): string[] {
+  return [...new Set([primary, fallback].filter(Boolean))];
+}
+
+function canTryFallback(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const providerError = error as GeminiProviderError;
+  if ([404, 429, 503].includes(providerError.status ?? 0)) return true;
+
+  const message = error.message.toLowerCase();
+  return ["high demand", "temporarily unavailable", "resource exhausted"].some(
+    (fragment) => message.includes(fragment),
+  );
+}
+
+export async function withGeminiModelFallback<T>(
+  models: string[],
+  generate: (model: string) => Promise<T>,
+): Promise<T> {
+  let lastError: unknown;
+  for (const [index, model] of models.entries()) {
+    try {
+      return await generate(model);
+    } catch (error) {
+      lastError = error;
+      if (index === models.length - 1 || !canTryFallback(error)) throw error;
+      console.warn("Gemini model unavailable; trying configured fallback.", {
+        model,
+        status: (error as GeminiProviderError).status,
+      });
+    }
+  }
+  throw lastError;
+}
+
 function requireGeminiKey() {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error("GEMINI_API_KEY is not configured.");
@@ -100,20 +140,22 @@ function requireGeminiKey() {
 
 export function createGeminiPlanner(): PlanProvider {
   const client = new GoogleGenAI({ apiKey: requireGeminiKey() });
-  const model = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+  const models = geminiModelCandidates();
 
   return {
     async generatePlan(project, correction) {
-      const response = await client.models.generateContent({
-        model,
-        contents: buildGeminiPrompt(project, correction),
-        config: {
-          systemInstruction: GEMINI_SYSTEM_INSTRUCTION,
-          temperature: 0.2,
-          responseMimeType: "application/json",
-          responseJsonSchema,
-        },
-      });
+      const response = await withGeminiModelFallback(models, (model) =>
+        client.models.generateContent({
+          model,
+          contents: buildGeminiPrompt(project, correction),
+          config: {
+            systemInstruction: GEMINI_SYSTEM_INSTRUCTION,
+            temperature: 0.2,
+            responseMimeType: "application/json",
+            responseJsonSchema,
+          },
+        }),
+      );
 
       const content = response.text;
       if (typeof content !== "string") return null;
