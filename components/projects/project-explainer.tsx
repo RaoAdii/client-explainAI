@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AlertTriangle, FileText, RefreshCw } from "lucide-react";
-import type { ExplanationPlan } from "@/lib/generation/groq";
+import type { ExplanationPlan } from "@/lib/generation/gemini";
 
 type PlanResponse = { plan: ExplanationPlan };
 

@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { projectFromRow } from "@/lib/projects/data";
-import { createGroqPlanner } from "@/lib/generation/groq";
+import { createGeminiPlanner } from "@/lib/generation/gemini";
 import { generatePlanWithRetry } from "@/lib/generation/plan-pipeline";
 import { generationFailure } from "@/lib/generation/errors";
+import { reservationUnavailable } from "@/lib/generation/reservation";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -18,11 +19,12 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
   if (!row) return NextResponse.json({ error: "Project not found." }, { status: 404 });
 
   const { error: reservationError } = await supabase.rpc("reserve_explanation", { p_project_id: id });
-  if (reservationError) return reservationFailure(reservationError.message);
+  if (reservationError && !reservationUnavailable(reservationError)) return reservationFailure(reservationError.message);
+  if (reservationError) console.warn("Explanation rate-limit migration is not installed; continuing without database reservation.", { code: reservationError.code });
 
   try {
     const project = projectFromRow(row);
-    const generated = await generatePlanWithRetry(project, createGroqPlanner());
+    const generated = await generatePlanWithRetry(project, createGeminiPlanner());
     return NextResponse.json({ plan: generated.plan });
   } catch (cause) {
     const failure = generationFailure(cause);

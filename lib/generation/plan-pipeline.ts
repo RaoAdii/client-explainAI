@@ -1,9 +1,9 @@
 import type { ProjectInput } from "@/lib/projects/schema";
-import { explanationPlanSchema, type ExplanationPlan, type PlanProvider } from "./groq";
+import { explanationPlanSchema, type ExplanationPlan, type PlanProvider } from "./gemini";
 
 export class InvalidExplanationPlanError extends Error {
   constructor() {
-    super("Groq did not return a valid process explanation after two attempts.");
+    super("Gemini did not return a valid process explanation after two attempts.");
     this.name = "InvalidExplanationPlanError";
   }
 }

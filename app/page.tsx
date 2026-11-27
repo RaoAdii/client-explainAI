@@ -61,7 +61,7 @@ export default function HomePage() {
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {[
               [FileText, "Describe", "Add the jurisdiction, legal area, audience, and the process clients need to understand."],
-              [FileText, "Explain", "Groq creates a plain-language overview, ordered process steps, and definitions of key legal terms."],
+              [FileText, "Explain", "Gemini creates a plain-language overview, ordered process steps, and definitions of key legal terms."],
               [Check, "Understand", "Read the explanation and confirm local requirements with a qualified legal professional."],
             ].map(([Icon, title, copy], index) => {
               const StepIcon = Icon as typeof FileText;

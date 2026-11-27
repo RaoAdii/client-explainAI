@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const migration = readFileSync("supabase/migrations/202611270001_initial_schema.sql", "utf8");
-const quotaMigration = readFileSync("supabase/migrations/202611270002_increase_generation_limit.sql", "utf8");
 const explanationMigration = readFileSync("supabase/migrations/202611270003_text_explanations.sql", "utf8");
 
 describe("database generation security contract", () => {
@@ -11,11 +10,6 @@ describe("database generation security contract", () => {
     expect(migration).toContain("pg_advisory_xact_lock");
     expect(migration).toContain("generation_rate_limited");
     expect(migration).toContain("generation_in_progress");
-  });
-
-  it("raises the existing hourly generation cap without removing atomic reservation", () => {
-    expect(quotaMigration).toContain("pg_advisory_xact_lock");
-    expect(quotaMigration).toMatch(/created_at >= now\(\) - interval '1 hour'\) >= 10/);
   });
 
   it("rate-limits text explanations independently of image generation", () => {

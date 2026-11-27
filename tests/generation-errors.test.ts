@@ -3,11 +3,11 @@ import { generationFailure } from "@/lib/generation/errors";
 import { InvalidExplanationPlanError } from "@/lib/generation/plan-pipeline";
 
 describe("explanationFailure", () => {
-  it("reports Groq quota exhaustion as a quota issue", () => {
+  it("reports Gemini quota exhaustion as a quota issue", () => {
     const error = Object.assign(new Error("RESOURCE_EXHAUSTED: quota exceeded; free tier limit: 0"), { status: 429 });
     expect(generationFailure(error)).toEqual({
       status: 429,
-      message: "Groq quota is exhausted. Check the Groq project limits or billing, then try again.",
+      message: "Gemini API quota is exhausted. Check the Google AI Studio project limits or billing, then try again.",
     });
   });
 
@@ -19,7 +19,7 @@ describe("explanationFailure", () => {
   it("keeps invalid structured plans distinct", () => {
     expect(generationFailure(new InvalidExplanationPlanError())).toEqual({
       status: 422,
-      message: "Groq could not produce a valid process explanation after two attempts. Refine the project description and try again.",
+      message: "Gemini could not produce a valid process explanation after two attempts. Refine the project description and try again.",
     });
   });
 });
