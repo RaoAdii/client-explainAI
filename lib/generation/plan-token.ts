@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
-import { infographicPlanSchema, type InfographicPlan } from "./groq";
+import { infographicPlanSchema } from "./groq";
 
 const TOKEN_TTL_MS = 10 * 60 * 1000;
 
@@ -30,6 +30,7 @@ export function createPlanToken(input: PlanTokenInput, secret: string, now = Dat
 }
 
 export function verifyPlanToken(token: string, secret: string, now = Date.now()): PlanTokenClaims | null {
+  if (token.length > 10_000) return null;
   const [payload, signature, extra] = token.split(".");
   if (!payload || !signature || extra !== undefined) return null;
 

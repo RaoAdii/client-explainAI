@@ -5,7 +5,7 @@ import { projectFromRow } from "@/lib/projects/data";
 import { fingerprintProject, generationImagePath } from "@/lib/projects/utils";
 import { renderInfographicPng } from "@/lib/generation/renderer";
 import { generationFailure } from "@/lib/generation/errors";
-import { getPlanTokenSecret, verifyPlanToken } from "@/lib/generation/plan-token";
+import { getPlanTokenSecret, verifyPlanToken, type PlanTokenClaims } from "@/lib/generation/plan-token";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -30,7 +30,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const token = body && typeof body === "object" && "token" in body && typeof body.token === "string" ? body.token : "";
   if (!token) return NextResponse.json({ error: "Prepare and review the process explanation before generating an image." }, { status: 400 });
 
-  let claims;
+  let claims: PlanTokenClaims | null;
   try {
     claims = verifyPlanToken(token, getPlanTokenSecret());
   } catch {
@@ -46,6 +46,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const project = projectFromRow(row);
     const fingerprint = await fingerprintProject(project);
     if (claims.fingerprint !== fingerprint) {
+      const { error: invalidateError } = await admin.rpc("fail_generation", {
+        p_run_id: claims.runId,
+        p_error_message: "Project details changed after the explanation was prepared.",
+        p_quality_issues: [],
+        p_attempt_count: claims.attempts,
+      });
+      if (invalidateError) {
+        console.error("Could not invalidate outdated process explanation", { projectId: id, runId: claims.runId, message: invalidateError.message });
+        return NextResponse.json({ error: "The project changed, but the old explanation could not be cleared. Please try again shortly." }, { status: 502 });
+      }
       return NextResponse.json({ error: "Project details changed. Prepare and review a new explanation before generating." }, { status: 409 });
     }
 

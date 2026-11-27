@@ -16,4 +16,6 @@ ClientExplain AI turns a legal-process brief into structured content with Groq, 
 npm run verify
 ```
 
+On a project page, prepare and review an AI-written project overview, complete process flow, and plain-language legal terms before generating the infographic. The image is rendered from that same reviewed plan.
+
 The application intentionally provides general legal information only. Every generated image is labeled as an AI-created draft requiring professional review.

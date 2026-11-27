@@ -12,6 +12,7 @@ describe("infographicPlanSchema", () => {
   it("rejects too few steps and overlong labels", () => {
     expect(() => infographicPlanSchema.parse({ ...examplePlan, steps: examplePlan.steps.slice(0, 3) })).toThrow();
     expect(() => infographicPlanSchema.parse({ ...examplePlan, steps: examplePlan.steps.map((step, index) => index ? step : { ...step, title: "x".repeat(56) }) })).toThrow();
+    expect(() => infographicPlanSchema.parse({ ...examplePlan, keyTerms: examplePlan.keyTerms.slice(0, 1) })).toThrow();
   });
 });
 
@@ -22,6 +23,7 @@ describe("buildGroqMessages", () => {
     expect(messages[1].content).toContain("BEGIN UNTRUSTED PROJECT DATA");
     expect(messages[1].content).toContain(exampleProject.description);
     expect(messages[0].content).toContain("Do not invent exact deadlines");
+    expect(messages[0].content).toContain("define 2 to 5 relevant legal terms");
   });
 });
 
