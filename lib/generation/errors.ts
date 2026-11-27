@@ -1,12 +1,12 @@
-import { InvalidInfographicPlanError } from "./plan-pipeline";
+import { InvalidExplanationPlanError } from "./plan-pipeline";
 
 type ProviderError = Error & { status?: number; code?: string | number };
 
 export type GenerationFailure = { status: number; message: string };
 
 export function generationFailure(cause: unknown): GenerationFailure {
-  if (cause instanceof InvalidInfographicPlanError) {
-    return { status: 422, message: "Groq could not produce a valid 4–6 step infographic plan after two attempts. Refine the project description and try again." };
+  if (cause instanceof InvalidExplanationPlanError) {
+    return { status: 422, message: "Groq could not produce a valid process explanation after two attempts. Refine the project description and try again." };
   }
 
   const error = cause instanceof Error ? cause as ProviderError : undefined;
@@ -24,7 +24,7 @@ export function generationFailure(cause: unknown): GenerationFailure {
     return { status: 504, message: "The server could not reach Groq. Check the network connection and try again." };
   }
   if (/configured/.test(text)) {
-    return { status: 503, message: "Image generation is not configured on this server." };
+    return { status: 503, message: "AI explanations are not configured on this server." };
   }
-  return { status: 502, message: "Groq could not complete the infographic content. Your previous accepted image is unchanged." };
+  return { status: 502, message: "Groq could not complete the process explanation. Please try again." };
 }

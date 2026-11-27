@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { generationFailure } from "@/lib/generation/errors";
-import { InvalidInfographicPlanError } from "@/lib/generation/plan-pipeline";
+import { InvalidExplanationPlanError } from "@/lib/generation/plan-pipeline";
 
-describe("generationFailure", () => {
+describe("explanationFailure", () => {
   it("reports Groq quota exhaustion as a quota issue", () => {
     const error = Object.assign(new Error("RESOURCE_EXHAUSTED: quota exceeded; free tier limit: 0"), { status: 429 });
     expect(generationFailure(error)).toEqual({
@@ -17,9 +17,9 @@ describe("generationFailure", () => {
   });
 
   it("keeps invalid structured plans distinct", () => {
-    expect(generationFailure(new InvalidInfographicPlanError())).toEqual({
+    expect(generationFailure(new InvalidExplanationPlanError())).toEqual({
       status: 422,
-      message: "Groq could not produce a valid 4–6 step infographic plan after two attempts. Refine the project description and try again.",
+      message: "Groq could not produce a valid process explanation after two attempts. Refine the project description and try again.",
     });
   });
 });

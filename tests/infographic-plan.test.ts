@@ -1,18 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { buildGroqMessages, infographicPlanSchema } from "@/lib/generation/groq";
+import { buildGroqMessages, explanationPlanSchema } from "@/lib/generation/groq";
 import { generatePlanWithRetry } from "@/lib/generation/plan-pipeline";
 import type { ProjectInput } from "@/lib/projects/schema";
 import { examplePlan, exampleProject } from "./fixtures/infographic";
 
-describe("infographicPlanSchema", () => {
+describe("explanationPlanSchema", () => {
   it("accepts a concise four-to-six-step plan", () => {
-    expect(infographicPlanSchema.parse(examplePlan).steps).toHaveLength(4);
+    expect(explanationPlanSchema.parse(examplePlan).steps).toHaveLength(4);
   });
 
   it("rejects too few steps and overlong labels", () => {
-    expect(() => infographicPlanSchema.parse({ ...examplePlan, steps: examplePlan.steps.slice(0, 3) })).toThrow();
-    expect(() => infographicPlanSchema.parse({ ...examplePlan, steps: examplePlan.steps.map((step, index) => index ? step : { ...step, title: "x".repeat(56) }) })).toThrow();
-    expect(() => infographicPlanSchema.parse({ ...examplePlan, keyTerms: examplePlan.keyTerms.slice(0, 1) })).toThrow();
+    expect(() => explanationPlanSchema.parse({ ...examplePlan, steps: examplePlan.steps.slice(0, 3) })).toThrow();
+    expect(() => explanationPlanSchema.parse({ ...examplePlan, steps: examplePlan.steps.map((step, index) => index ? step : { ...step, title: "x".repeat(56) }) })).toThrow();
+    expect(() => explanationPlanSchema.parse({ ...examplePlan, keyTerms: examplePlan.keyTerms.slice(0, 1) })).toThrow();
   });
 });
 
@@ -43,6 +43,6 @@ describe("generatePlanWithRetry", () => {
   });
 
   it("fails after two invalid plans", async () => {
-    await expect(generatePlanWithRetry(exampleProject, { generatePlan: async () => ({ steps: [] }) })).rejects.toThrow("valid infographic plan");
+    await expect(generatePlanWithRetry(exampleProject, { generatePlan: async () => ({ steps: [] }) })).rejects.toThrow("valid process explanation");
   });
 });

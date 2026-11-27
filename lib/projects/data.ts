@@ -3,10 +3,6 @@ import type { ProjectInput, WorkflowStatus } from "./schema";
 export type ProjectRecord = ProjectInput & {
   id: string;
   userId: string;
-  imagePath: string | null;
-  imageAltText: string | null;
-  imageInputFingerprint: string | null;
-  imageGeneratedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -23,10 +19,6 @@ export function projectFromRow(row: Record<string, unknown>): ProjectRecord {
     complexity: String(row.complexity),
     workflowStatus: row.workflow_status as WorkflowStatus,
     description: String(row.description),
-    imagePath: row.image_path ? String(row.image_path) : null,
-    imageAltText: row.image_alt_text ? String(row.image_alt_text) : null,
-    imageInputFingerprint: row.image_input_fingerprint ? String(row.image_input_fingerprint) : null,
-    imageGeneratedAt: row.image_generated_at ? String(row.image_generated_at) : null,
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
   };

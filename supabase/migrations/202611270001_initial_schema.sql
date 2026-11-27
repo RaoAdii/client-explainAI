@@ -88,7 +88,7 @@ begin
     and status in ('pending', 'generating') and created_at >= now() - interval '10 minutes'
   ) then raise exception using errcode = 'P0001', message = 'generation_in_progress'; end if;
 
-  if (select count(*) from public.generation_runs where user_id = v_user_id and created_at >= now() - interval '1 hour') >= 5 then
+  if (select count(*) from public.generation_runs where user_id = v_user_id and created_at >= now() - interval '1 hour') >= 10 then
     raise exception using errcode = 'P0001', message = 'generation_rate_limited';
   end if;
 

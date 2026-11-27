@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, FileText, Image as ImageIcon, Plus, Search } from "lucide-react";
+import { ArrowRight, FileText, Plus, Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { projectFromRow } from "@/lib/projects/data";
 import { StatusBadge } from "@/components/projects/status-badge";
@@ -19,7 +19,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   return (
     <main className="mx-auto max-w-7xl px-5 py-10 lg:px-8">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-        <div><p className="eyebrow">Workspace</p><h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">Your projects</h1><p className="mt-2 text-sm text-slate-600">Create, review, and manage client-friendly legal visuals.</p></div>
+        <div><p className="eyebrow">Workspace</p><h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">Your projects</h1><p className="mt-2 text-sm text-slate-600">Create and manage clear, step-by-step legal-process explanations.</p></div>
         <Link href="/projects/new" className="button-primary"><Plus className="size-4" /> New project</Link>
       </div>
 
@@ -34,7 +34,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {projects.map((project) => (
             <Link key={project.id} href={`/projects/${project.id}`} className="group rounded-2xl border border-stone-200 bg-white p-6 transition hover:border-stone-300 hover:shadow-[0_18px_45px_rgba(28,37,41,.07)]">
-              <div className="flex items-start justify-between gap-4"><span className="grid size-10 place-items-center rounded-xl bg-[#edf2f2] text-[#315d6a]">{project.imagePath ? <ImageIcon className="size-5" /> : <FileText className="size-5" />}</span><StatusBadge status={project.workflowStatus} /></div>
+              <div className="flex items-start justify-between gap-4"><span className="grid size-10 place-items-center rounded-xl bg-[#edf2f2] text-[#315d6a]"><FileText className="size-5" /></span><StatusBadge status={project.workflowStatus} /></div>
               <h2 className="mt-5 font-semibold text-slate-900 group-hover:text-[#315d6a]">{project.name}</h2><p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{project.description}</p>
               <div className="mt-6 flex items-center justify-between border-t border-stone-100 pt-4 text-xs text-slate-500"><span>{project.jurisdiction}</span><ArrowRight className="size-4 transition-transform group-hover:translate-x-1" /></div>
             </Link>
