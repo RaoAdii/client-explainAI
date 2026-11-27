@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function NotFound() { return <main className="mx-auto max-w-xl px-6 py-24 text-center"><p className="eyebrow">Not found</p><h1 className="mt-3 text-3xl font-semibold text-slate-900">This project is unavailable</h1><p className="mt-3 text-slate-600">It may not exist, or it belongs to another account.</p><Link href="/dashboard" className="button-primary mt-7">Back to projects</Link></main>; }
